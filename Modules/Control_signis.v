@@ -1,9 +1,9 @@
-module Control_signis (type, regiwrite, memwrite, memread, alucontrol, funct3, clk, branch, memtoreg, alusrc, funct7, state);
-    input wire [2:0] type; //Pega os 3 bits mais significativos do opcode para comparação
+module Control_signis (tipo, regiwrite, memwrite, memread, alucontrol, funct3, clk, branch, memtoreg, alusrc, funct7, estado);
+    input wire [2:0] tipo; //Pega os 3 bits mais significativos do opcode para comparação
     input wire [2:0] funct3;
     input wire [6:0] funct7;
     input wire clk;
-    input wire [3:0] state;
+    input wire [3:0] estado;
     output reg regiwrite;
     output reg [1:0] aluop;
     output reg memwrite;
@@ -13,15 +13,15 @@ module Control_signis (type, regiwrite, memwrite, memread, alucontrol, funct3, c
     output reg memtoreg;
     output reg alusrc;
 
-   // gerando sinais de controle
+    // gerando sinais de controle
     always @(posedge clk)begin
-        // state para gerar valores de controle para a alu realizar determina operação
+        // estado para gerar valores de controle para a alu realizar determina operação
         /* 
         inicialmente os sinais de controle de escrita e leitura são iniciados como don't care 
         para não ocorrer a escrita no registrar antes do resultado da alu estiver pronto
         */
-        if(state == 4'b0010 ) begin
-            case (type)
+        if(estado == 4'b0010 ) begin
+            case (tipo)
                 // sinais de controle para i
                 3'b000: begin //lw
                     regiwrite <= 1'bx;
@@ -54,7 +54,7 @@ module Control_signis (type, regiwrite, memwrite, memread, alucontrol, funct3, c
                 end
                 // sinais de controle para r
                 3'b011: begin
-                    // como o opcode é igual para todos os types de r, é necessário verificar o funct3
+                    // como o opcode é igual para todos os tipos de r, é necessário verificar o funct3
                     case (funct3)
                         3'b000 : begin //sub e soma
                             // add e sub são iguais, a diferença é o funct7
@@ -129,13 +129,13 @@ module Control_signis (type, regiwrite, memwrite, memread, alucontrol, funct3, c
                 end
             endcase
         end
-        // state para gerar valores de controle para a leitura ou escrita
+        // estado para gerar valores de controle para a leitura ou escrita
         /* 
-        nesse último state após o resultado vindo da alu estiver pronto os sinais de controle 
+        nesse último estado após o resultado vindo da alu estiver pronto os sinais de controle 
         de escrita e lei são gerados
         */
-        if(state == 4'b1111 )begin
-            case (type)
+        if(estado == 4'b1111 )begin
+            case (tipo)
                 3'b000: begin //lw
                     regiwrite <= 1'b1;
                     memwrite <= 1'b0;
