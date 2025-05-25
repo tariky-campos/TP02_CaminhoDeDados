@@ -23,7 +23,7 @@ module caminho_tb;
     .mem25(mem25), .mem26(mem26), .mem27(mem27), .mem28(mem28), .mem29(mem29), .mem30(mem30), .mem31(mem31));
 
     initial begin
-        $dumpfile("TestBench.vcd");
+        $dumpfile("testbench.vcd");
         $dumpvars(0, caminho_tb);
         $display("\nResultados Finais");
         rst_tb = 0;
