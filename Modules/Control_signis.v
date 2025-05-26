@@ -23,35 +23,42 @@ module Control_signis (tipo, regiwrite, memwrite, memread, alucontrol, funct3, c
         if(estado == 4'b0010 ) begin
             case (tipo)
                 // sinais de controle para i
-                3'b000: begin //lw
-                    regiwrite <= 1'bx;
-                    memwrite <= 1'bx;
-                    memread <= 1'bx;
-                    alucontrol <= 4'b0010;
-                    branch <= 1'b0;
-                    memtoreg <= 1'b1;
-                    alusrc <= 1'b1;
+                3'b001: begin // instruções tipo I (addi, ori, ...)
+                    case(funct3)
+                        3'b000: begin // addi
+                            regiwrite <= 1'bx;
+                            memwrite <= 1'bx;
+                            memread <= 1'bx;
+                            alucontrol <= 4'b0011;
+                            branch <= 1'b0;
+                            memtoreg <= 1'b0;
+                            alusrc <= 1'b1;
+                        end
+                        3'b110: begin // ori
+                            regiwrite <= 1'bx;
+                            memwrite <= 1'bx;
+                            memread <= 1'bx;
+                            alucontrol <= 4'b1001;
+                            branch <= 1'b0;
+                            memtoreg <= 1'b0;
+                            alusrc <= 1'b1;
+                        end
+                    endcase
                 end
-                // sinais de controle para i
-                3'b001: begin //addi
-                    regiwrite <= 1'bx;
-                    memwrite <= 1'bx;
-                    memread <= 1'bx;
-                    alucontrol <= 4'b0011;
-                    branch <= 1'b0;
-                    memtoreg <= 1'b0;
-                    alusrc <= 1'b1;
+                3'b000: begin // instruções tipo I de load (lb)
+                    case (funct3)
+                        3'b000: begin // lb
+                            regiwrite <= 1'bx;
+                            memwrite <= 1'b0;
+                            memread <= 1'b1;
+                            alucontrol <= 4'b1100;
+                            branch <= 1'b0;
+                            memtoreg <= 1'b1;
+                            alusrc <= 1'b1;
+                        end
+                    endcase
                 end
-                // sinais de controle para s
-                3'b010: begin //sw
-                    regiwrite <= 1'bx;
-                    memwrite <= 1'bx;
-                    memread <= 1'bx;
-                    alucontrol <= 4'b0010;
-                    branch <= 1'b0;
-                    memtoreg <= 1'b1;
-                    alusrc <= 1'b1;
-                end
+
                 // sinais de controle para r
                 3'b011: begin
                     // como o opcode é igual para todos os tipos de r, é necessário verificar o funct3
@@ -79,24 +86,6 @@ module Control_signis (tipo, regiwrite, memwrite, memread, alucontrol, funct3, c
                                 end
                             endcase
                         end
-                        3'b100 : begin //xor
-                            regiwrite <= 1'bx;
-                            memwrite <= 1'bx;
-                            memread <= 1'bx;
-                            alucontrol <= 4'b0100;
-                            branch <= 1'b0;
-                            memtoreg <= 1'b0;
-                            alusrc <= 1'b0;
-                        end
-                        3'b101 : begin //srl
-                            regiwrite <= 1'bx;
-                            memwrite <= 1'bx;
-                            memread <= 1'bx;
-                            alucontrol <= 4'b0101;
-                            branch <= 1'b0;
-                            memtoreg <= 1'b0;
-                            alusrc <= 1'b0;
-                        end
                         3'b111 : begin //and
                         regiwrite <= 1'bx;
                         memwrite <= 1'bx;
@@ -106,15 +95,15 @@ module Control_signis (tipo, regiwrite, memwrite, memread, alucontrol, funct3, c
                             memtoreg <= 1'b0;
                             alusrc <= 1'b0;
                         end
-                        3'b110 : begin //or
-                            regiwrite <= 1'bx;
-                            memwrite <= 1'bx;
-                            memread <= 1'bx;
-                            alucontrol <= 4'b0001;
-                            branch <= 1'b0;
-                            memtoreg <= 1'b0;
-                            alusrc <= 1'b0;
-                        end
+                        3'b001 : begin // **sll**
+                        regiwrite <= 1'bx;
+                        memwrite <= 1'bx;
+                        memread <= 1'bx;
+                        alucontrol <= 4'b1010; // novo código para SLL
+                        branch <= 1'b0;
+                        memtoreg <= 1'b0;
+                        alusrc <= 1'b0;
+                    end
                     endcase
                 end
                 // sinais de controle para sb
@@ -136,33 +125,42 @@ module Control_signis (tipo, regiwrite, memwrite, memread, alucontrol, funct3, c
         */
         if(estado == 4'b1111 )begin
             case (tipo)
-                3'b000: begin //lw
-                    regiwrite <= 1'b1;
-                    memwrite <= 1'b0;
-                    memread <= 1'b1;
-                    alucontrol <= 4'b0010;
-                    branch <= 1'b0;
-                    memtoreg <= 1'b1;
-                    alusrc <= 1'b1;
+                3'b001: begin
+                    case(funct3)
+                        3'b000: begin // addi
+                            regiwrite <= 1'b1;
+                            memwrite <= 1'b0;
+                            memread <= 1'b0;
+                            alucontrol <= 4'b0011;
+                            branch <= 1'b0;
+                            memtoreg <= 1'b0;
+                            alusrc <= 1'b1;
+                        end
+                        3'b110: begin // ori
+                            regiwrite <= 1'b1;
+                            memwrite <= 1'b0;
+                            memread <= 1'b0;
+                            alucontrol <= 4'b1001;
+                            branch <= 1'b0;
+                            memtoreg <= 1'b0;
+                            alusrc <= 1'b1;
+                        end
+                    endcase
                 end
-                3'b001: begin //addi
-                    regiwrite <= 1'b1;
-                    memwrite <= 1'b0;
-                    memread <= 1'b0;
-                    alucontrol <= 4'b0011;
-                    branch <= 1'b0;
-                    memtoreg <= 1'b0;
-                    alusrc <= 1'b1;
+                3'b000: begin
+                    case (funct3)
+                        3'b000: begin // lb
+                            regiwrite <= 1'b1;
+                            memwrite <= 1'b0;
+                            memread <= 1'b1;
+                            alucontrol <= 4'b1100;
+                            branch <= 1'b0;
+                            memtoreg <= 1'b1;
+                            alusrc <= 1'b1;
+                        end
+                    endcase
                 end
-                3'b010: begin //sw
-                    regiwrite <= 1'b0;
-                    memwrite <= 1'b1;
-                    memread <= 1'b0;
-                    alucontrol <= 4'b0010;
-                    branch <= 1'b0;
-                    memtoreg <= 1'b1;
-                    alusrc <= 1'b1;
-                end
+
                 3'b011: begin
                     case (funct3)
                         3'b000 : begin //sub e soma
@@ -187,24 +185,6 @@ module Control_signis (tipo, regiwrite, memwrite, memread, alucontrol, funct3, c
                                 end
                             endcase
                         end
-                        3'b100 : begin //xor
-                            regiwrite <= 1'b1;
-                            memwrite <= 1'b0;
-                            memread <= 1'b0;
-                            alucontrol <= 4'b0100;
-                            branch <= 1'b0;
-                            memtoreg <= 1'b0;
-                            alusrc <= 1'b0;
-                        end
-                        3'b101 : begin //srl
-                            regiwrite <= 1'b1;
-                            memwrite <= 1'b0;
-                            memread <= 1'b0;
-                            alucontrol <= 4'b0101;
-                            branch <= 1'b0;
-                            memtoreg <= 1'b0;
-                            alusrc <= 1'b0;
-                        end
                         3'b111 : begin //and
                             regiwrite <= 1'b1;
                             memwrite <= 1'b0;
@@ -214,11 +194,11 @@ module Control_signis (tipo, regiwrite, memwrite, memread, alucontrol, funct3, c
                             memtoreg <= 1'b0;
                             alusrc <= 1'b0;
                         end
-                        3'b110 : begin //or
+                        3'b001 : begin // **sll**
                             regiwrite <= 1'b1;
                             memwrite <= 1'b0;
                             memread <= 1'b0;
-                            alucontrol <= 4'b0001;
+                            alucontrol <= 4'b1010; // novo código para SLL
                             branch <= 1'b0;
                             memtoreg <= 1'b0;
                             alusrc <= 1'b0;

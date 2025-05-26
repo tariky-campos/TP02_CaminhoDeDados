@@ -1,8 +1,8 @@
-module SomaPC (PC, clk, pcsrc, immediate, estado, negativo);
+module SomaPC (PC, clk, pcsrc, imediato, estado, negativo);
   input wire clk;
   input wire [3:0] estado;
   input pcsrc;
-  input [11:0] immediate;
+  input [11:0] imediato;
   input negativo;
   output reg [31:0] PC; // posição da próxima instrução
 
@@ -22,10 +22,10 @@ module SomaPC (PC, clk, pcsrc, immediate, estado, negativo);
           1'b1: begin
             // sinal de controle para saber se o imediato é negativo ou não
             if(negativo == 1'b1)begin
-              PC <= PC - (immediate/4); // caso haja desvio
+              PC <= PC - (imediato/4); // caso haja desvio
             end
             else begin
-              PC <= PC + (immediate/4); // caso haja desvio
+              PC <= PC + (imediato/4); // caso haja desvio
             end
           end
       endcase

@@ -1,4 +1,4 @@
-module Registrars (clk, rs1, rs2, rd, readdata1R, readdata2R, regiwrite, memtoreg, writedataR, reddataM, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7, reg8, reg9, reg10, reg11, reg12, reg13, reg14, reg15, reg16, reg17, reg18, reg19, reg20, reg21, reg22, reg23, reg24, reg25, reg26, reg27, reg28, reg29, reg30, reg31, estado);
+module Registrars (clk, rs1, rs2, rd, ler_dados1, ler_dados2, regiwrite, memtoreg, writedataR, reddataM, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7, reg8, reg9, reg10, reg11, reg12, reg13, reg14, reg15, reg16, reg17, reg18, reg19, reg20, reg21, reg22, reg23, reg24, reg25, reg26, reg27, reg28, reg29, reg30, reg31, estado);
     input wire clk;
     input [3:0] estado;
     input [4:0] rs1;
@@ -8,8 +8,8 @@ module Registrars (clk, rs1, rs2, rd, readdata1R, readdata2R, regiwrite, memtore
     input memtoreg;
     input [31:0] writedataR;
     input [31:0] reddataM;
-    output [31:0] readdata1R;
-    output [31:0] readdata2R;
+    output [31:0] ler_dados1;
+    output [31:0] ler_dados2;
     output reg [31:0] reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7, reg8, reg9, reg10, reg11;
     output reg [31:0] reg12, reg13, reg14, reg15, reg16, reg17, reg18, reg19, reg20, reg21, reg22, reg23; 
     output reg [31:0] reg24, reg25, reg26, reg27, reg28, reg29, reg30, reg31;
@@ -54,11 +54,12 @@ module Registrars (clk, rs1, rs2, rd, readdata1R, readdata2R, regiwrite, memtore
     end
 
     // lendo os valores dos registradores usados na alu
-    assign readdata1R = bancoregistradores[rs1];
-    assign readdata2R = bancoregistradores[rs2];
+    assign ler_dados1 = bancoregistradores[rs1];
+    assign ler_dados2 = bancoregistradores[rs2];
 
     // escrevendo no registrador
     always @(posedge clk) begin
+
         // estado onde o registrador é escrito
         if ((estado == 4'b0110 ) || (estado == 4'b0111)) begin // Estado de execução
             // regiwirte mostra se o registrador é escrito ou não

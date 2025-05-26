@@ -5,8 +5,6 @@
 `include "../Modules/Registrars.v"
 `include "../Modules/Alu.v"
 `include "../Modules/Memory.v"
-`include "../Modules/ControlUnit.v"
-
 
 //lw sw sub xor addi srl beq
 
@@ -22,24 +20,22 @@ mem24, mem25, mem26, mem27, mem28, mem29, mem30, mem31);
     input wire clk, rst;
 
     //IF - para ler a instrução
-    wire [31:0] instrucao;
+    wire [31:0] instruction;
     wire [6:0] opcode;
     wire [4:0] rd; // registrador de destino
     wire [4:0] rs1; // registrador de leitura 1
     wire [4:0] rs2; // registrador de leitura 2
     wire [2:0] funct3; 
     wire [6:0] funct7;
-    wire [11:0] imediato;
-    wire [2:0] tipo; // tipo da instrução
+    wire [11:0] immediate;
+    wire [2:0] type; // type da instrução
     wire [31:0] PC; // posição para ler a instrução
-    wire negativo; // usado para quando o imediato é negativo
+    wire negative; // usado para quando o immediate é negative
     //wire clk;
-    wire is_lb;
-    wire is_sb;
 
     //ID - para ler os registradores
-    wire [31:0] ler_dados1; //R para indicar que pertence ao banco de registradores
-    wire [31:0] ler_dados2; //R para indicar que pertence ao banco de registradores
+    wire [31:0] read_data1; //R para indicar que pertence ao banco de registradores
+    wire [31:0] read_data2; //R para indicar que pertence ao banco de registradores
     wire [31:0] writedataR; //R para indicar que pertence ao banco de registradores
     //registradores de x0 a x31
     output [31:0] reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7, reg8, reg9, reg10, reg11;
@@ -52,7 +48,7 @@ mem24, mem25, mem26, mem27, mem28, mem29, mem30, mem31);
     wire [31:0] aluresult2;
 
     //MEM - para ler/escrever na memoria
-    wire [31:0] reddataM; //M para indicar que pertence a memoria
+    wire [31:0] read_dataM; //M para indicar que pertence a memoria
     //campos da memoria
     output [31:0] mem0, mem1, mem2, mem3, mem4, mem5, mem6, mem7, mem8, mem9, mem10, mem11;
     output [31:0] mem12, mem13, mem14, mem15, mem16, mem17, mem18, mem19, mem20, mem21, mem22, mem23; 
@@ -84,107 +80,94 @@ mem24, mem25, mem26, mem27, mem28, mem29, mem30, mem31);
 
 
     // //maquina de estados
-    reg [3:0] estado;
+    reg [3:0] state;
 
     // inciando a maquina de estados e exportando arquivo teste
     initial begin
-         estado <= IF;
-         
+         state <= IF;
     end
 
     //calcular o endereço
-    SomaPC SomaPC(.PC(PC), .clk(clk), .pcsrc(pcsrc), .imediato(imediato), .estado(estado), 
-    .negativo(negativo));
+    SomaPC SomaPC(.PC(PC), .clk(clk), .pcsrc(pcsrc), .immediate(immediate), .state(state), 
+    .negative(negative));
     //leitura da instrução da instruction memory
-    Read_instructions Read_instructions(.instrucao(instrucao), .PC(PC), .clk(clk), .estado(estado));
+    Read_instructions Read_instructions(.instruction(instruction), .PC(PC), .clk(clk), .state(state));
     //decodificação da instrução
-    Decoding Decoding(.instrucao(instrucao), .opcode(opcode), .rd(rd), .rs1(rs1), .rs2(rs2), 
-    .funct3(funct3), .funct7(funct7), .imediato(imediato), .tipo(tipo), .clk(clk), .estado(estado), 
-    .negativo(negativo));
+    Decoding Decoding(.instruction(instruction), .opcode(opcode), .rd(rd), .rs1(rs1), .rs2(rs2), 
+    .funct3(funct3), .funct7(funct7), .immediate(immediate), .type(type), .clk(clk), .state(state), 
+    .negative(negative));
     //gerando os sinais de controle
-    Control_signis Control_signis(.tipo(tipo), .regiwrite(regiwrite), .memwrite(memwrite), 
+    Control_signis Control_signis(.type(type), .regiwrite(regiwrite), .memwrite(memwrite), 
     .memread(memread), .alucontrol(alucontrol), .funct3(funct3), .clk(clk), .branch(branch), 
-    .memtoreg(memtoreg), .alusrc(alusrc), .funct7(funct7), .estado(estado));
+    .memtoreg(memtoreg), .alusrc(alusrc), .funct7(funct7), .state(state));
     //leitura e escrita dos registradores
-    Registrars Registrars(.clk(clk), .rs1(rs1), .rs2(rs2), .rd(rd), .ler_dados1(ler_dados1), 
-    .ler_dados2(ler_dados2), .regiwrite(regiwrite), .memtoreg(memtoreg), .writedataR(writedataR), 
-    .reddataM(reddataM),.reg0(reg0), .reg1(reg1), .reg2(reg2), .reg3(reg3), .reg4(reg4), .reg5(reg5), 
+    Registrars Registrars(.clk(clk), .rs1(rs1), .rs2(rs2), .rd(rd), .read_data1(read_data1), 
+    .read_data2(read_data2), .regiwrite(regiwrite), .memtoreg(memtoreg), .writedataR(writedataR), 
+    .read_dataM(read_dataM),.reg0(reg0), .reg1(reg1), .reg2(reg2), .reg3(reg3), .reg4(reg4), .reg5(reg5), 
     .reg6(reg6), .reg7(reg7), .reg8(reg8), .reg9(reg9), .reg10(reg10), .reg11(reg11),.reg12(reg12), 
     .reg13(reg13), .reg14(reg14), .reg15(reg15), .reg16(reg16), .reg17(reg17), .reg18(reg18), .reg19(reg19), 
     .reg20(reg20), .reg21(reg21), .reg22(reg22), .reg23(reg23), .reg24(reg24), .reg25(reg25), .reg26(reg26), 
-    .reg27(reg27), .reg28(reg28), .reg29(reg29), .reg30(reg30), .reg31(reg31), .estado(estado));
+    .reg27(reg27), .reg28(reg28), .reg29(reg29), .reg30(reg30), .reg31(reg31), .state(state));
     //execução da alu
-    Alu Alu(.clk(clk), .ler_dados1(ler_dados1), .ler_dados2(ler_dados2), .alusrc(alusrc), 
-    .alucontrol(alucontrol), .imediato(imediato), .aluresult1(aluresult1), .aluresult2(aluresult2), 
-    .pcsrc(pcsrc), .branch(branch), .estado(estado), .negativo(negativo));
+    Alu Alu(.clk(clk), .read_data1(read_data1), .read_data2(read_data2), .alusrc(alusrc), 
+    .alucontrol(alucontrol), .immediate(immediate), .aluresult1(aluresult1), .aluresult2(aluresult2), 
+    .pcsrc(pcsrc), .branch(branch), .state(state), .negative(negative));
     //leitura e escrita da memoria
-    Memory Memory(.clk(clk), .aluresult2(aluresult2), .ler_dados2(ler_dados2), .reddataM(reddataM), 
-    .memwrite(memwrite), .memread(memread), .imediato(imediato), .mem0(mem0), .mem1(mem1), .mem2(mem2), 
+    Memory Memory(.clk(clk), .aluresult2(aluresult2), .read_data2(read_data2), .read_dataM(read_dataM), 
+    .memwrite(memwrite), .memread(memread), .immediate(immediate), .mem0(mem0), .mem1(mem1), .mem2(mem2), 
     .mem3(mem3), .mem4(mem4), .mem5(mem5), .mem6(mem6), .mem7(mem7), .mem8(mem8), .mem9(mem9), .mem10(mem10), 
     .mem11(mem11),.mem12(mem12), .mem13(mem13), .mem14(mem14), .mem15(mem15), .mem16(mem16), .mem17(mem17), 
     .mem18(mem18), .mem19(mem19), .mem20(mem20), .mem21(mem21), .mem22(mem22), .mem23(mem23), .mem24(mem24), 
     .mem25(mem25), .mem26(mem26), .mem27(mem27), .mem28(mem28), .mem29(mem29), .mem30(mem30), .mem31(mem31), 
-    .estado(estado), .writedataR(writedataR), .is_lb(is_lb), .is_sb(is_sb));
-    ControlUnit control(
-    .opcode(opcode),
-    .funct3(funct3),
-    .memread(memread),
-    .memwrite(memwrite),
-    .regwrite(regwrite),
-    .is_lb(is_lb),
-    .is_sb(is_sb)
-);
-
-
-
+    .state(state), .writedataR(writedataR));
 
     //maquina de estados
     always @(posedge clk, posedge rst) begin
         // rst ativo acaba com a execução
         if(rst == 1'b1)begin
-            estado <= IF;
+            state <= IF;
         end 
         else begin
-                case(estado)
+                case(state)
             IF: begin
-                estado <= ID;
+                state <= ID;
             end
             ID: begin
                 // se a instrução for 0, acaba a execução
-                if(instrucao != 0)begin
-                    estado <= EX;
+                if(instruction != 0)begin
+                    state <= EX;
                 end
                 else begin
-                    estado <= FIM;
+                    state <= FIM;
                 end
             end
             EX: begin
-                estado <= AUX1;
+                state <= AUX1;
             end
             AUX1: begin
-                estado <= AUX2;
+                state <= AUX2;
             end
             AUX2: begin
-                estado <= MEM;
+                state <= MEM;
             end
             MEM: begin
-                estado <= WB;
+                state <= WB;
             end
             WB: begin
-                estado <= AUX3;
+                state <= AUX3;
             end
             AUX3: begin
-                estado <= AUX4;
+                state <= AUX4;
             end
             AUX4: begin
-                estado <= SUMPC;
+                state <= SUMPC;
             end
             SUMPC: begin
-                estado <= IF;
+                state <= IF;
             end
             FIM : begin
                 if(rst == 1'b0) begin
-                    estado <= IF;
+                    state <= IF;
                 end
             end
             endcase
