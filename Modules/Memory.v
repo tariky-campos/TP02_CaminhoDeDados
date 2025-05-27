@@ -87,6 +87,7 @@ end
 
 // Escrita e leitura da memória sincronizadas com clock
 always @(posedge clk) begin
+
     if ((estado == 4'b0011) || (estado == 4'b0110) || (estado == 4'b0111)) begin
         // Escrita na memória
         if (memwrite) begin

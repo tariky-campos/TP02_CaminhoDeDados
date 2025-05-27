@@ -107,14 +107,27 @@ module Control_signis (tipo, regiwrite, memwrite, memread, alucontrol, funct3, c
                     endcase
                 end
                 // sinais de controle para sb
-                3'b110: begin //beq
-                    regiwrite <= 1'bx;
-                    memwrite <= 1'bx;
-                    memread <= 1'bx;
-                    alucontrol <= 4'b0110;
-                    branch <= 1'b1;
-                    memtoreg <= 1'b0;
-                    alusrc <= 1'b1;
+                3'b110: begin // tipo B
+                    case (funct3)
+                        3'b000 : begin // beq
+                            regiwrite <= 1'bx;
+                            memwrite <= 1'bx;
+                            memread <= 1'bx;
+                            alucontrol <= 4'b0110;
+                            branch <= 1'b1;
+                            memtoreg <= 1'b0;
+                            alusrc <= 1'b1;
+                        end
+                        3'b001 : begin // bne
+                            regiwrite <= 1'bx;
+                            memwrite <= 1'bx;
+                            memread <= 1'bx;
+                            alucontrol <= 4'b1111;
+                            branch <= 1'b1;
+                            memtoreg <= 1'b0;
+                            alusrc <= 1'b1;
+                        end
+                    endcase
                 end
             endcase
         end

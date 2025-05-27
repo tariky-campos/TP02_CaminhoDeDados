@@ -5,7 +5,7 @@
 `include "../Modules/Registrars.v"
 `include "../Modules/Alu.v"
 `include "../Modules/Memory.v"
-`include "../Modules/ControlUnit.v"
+
 
 
 //lw sw sub xor addi srl beq
@@ -125,15 +125,7 @@ mem24, mem25, mem26, mem27, mem28, mem29, mem30, mem31);
     .mem18(mem18), .mem19(mem19), .mem20(mem20), .mem21(mem21), .mem22(mem22), .mem23(mem23), .mem24(mem24), 
     .mem25(mem25), .mem26(mem26), .mem27(mem27), .mem28(mem28), .mem29(mem29), .mem30(mem30), .mem31(mem31), 
     .estado(estado), .writedataR(writedataR), .is_lb(is_lb), .is_sb(is_sb));
-    ControlUnit control(
-    .opcode(opcode),
-    .funct3(funct3),
-    .memread(memread),
-    .memwrite(memwrite),
-    .regwrite(regwrite),
-    .is_lb(is_lb),
-    .is_sb(is_sb)
-);
+
 
 
 

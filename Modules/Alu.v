@@ -11,7 +11,7 @@ module Alu (clk, ler_dados1, ler_dados2, alusrc, alucontrol, imediato, aluresult
     output reg aluresult1; // sinal de controle de desvio
     output reg [31:0] aluresult2; // resultado da alu
     output pcsrc; // sinal de controle para o pc saber se vai ser incrementado com imeadiato ou não
-
+    reg [31:0] temp;
     assign pcsrc = aluresult1 & branch;
 
     always @(posedge clk) begin
@@ -73,19 +73,12 @@ module Alu (clk, ler_dados1, ler_dados2, alusrc, alucontrol, imediato, aluresult
                             aluresult1 <= 1'b0;
                             
                         end
-                        4'b0110: begin //subtração para beq
-                            aluresult2 <= ler_dados1 - ler_dados2; // comparando os registradores para ver se são iguais e fazer o desvio
-                            if(aluresult2 == 0) begin
-                                aluresult1 <= 1'b1;
-                            end
-                        end
-                        4'b1111: begin // bne
-                            if(ler_dados1 != ler_dados2) begin // comparando os registradores para ver se são diferentes e fazer o desvio
-                                aluresult1 <= 1'b1;
-                            end 
-                            else begin
-                                aluresult1 <= 1'b0;
-                            end
+                        4'b0110: begin //subtração para bne
+                      
+                            temp = ler_dados1 - ler_dados2;
+                            aluresult2 <= temp;
+                            aluresult1 <= (temp != 0) ? 1'b1 : 1'b0;
+                            
                         end
                         4'b1001: begin //ori
                             aluresult2 <= ler_dados1 | imediato;
@@ -103,6 +96,12 @@ module Alu (clk, ler_dados1, ler_dados2, alusrc, alucontrol, imediato, aluresult
                             end
                             aluresult1 <= 1'b0;
                         end
+                        4'b1111: begin // BEQ (branch se igual)
+                            temp = ler_dados1 - ler_dados2;
+                            aluresult2 <= temp;
+                            aluresult1 <= (temp == 0) ? 1'b1 : 1'b0;
+                        end
+
                     endcase
                 end
             endcase
